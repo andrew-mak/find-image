@@ -1,0 +1,9 @@
+.sideBar {
+  width: 64px;
+  height: calc(100vh - 92px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  border: 2px solid black;
+}
