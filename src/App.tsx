@@ -1,24 +1,28 @@
-import React from "react";
+import React, { useContext } from "react";
 import "./App.css";
-import ContentBox from "./components/ContentBox";
-import LeftSideBar from "./components/LeftSideBar";
+import { Route, Switch } from "react-router-dom";
+import { AuthContext } from "./context/auth-context";
+import Layout from "./components/Layout";
+import Auth from "./components/Auth";
+import SearchImages from "./components/Images/SearchImages";
+import Bookmarks from "./components/Images/Bookmarks";
 
 function App() {
+  const authContext = useContext(AuthContext);
+
+  const routs = (
+    <Switch>
+      <Route path="/bookmarks">
+        {authContext.isAuth ? <Bookmarks /> : <Auth />}
+      </Route>
+      <Route path="/" component={SearchImages} />
+    </Switch>
+  );
+
   return (
     <div className="App">
-      <header>
-        <h1>Image Finder</h1>
-        <button className="btn login">Login</button>
-      </header>
-      <main>
-        <LeftSideBar />
-        <ContentBox />
-      </main>
-      <footer>
-        <div className="text">
-          Copyright © Image Finder {new Date().getFullYear()}.
-        </div>
-      </footer>
+      <Layout>{routs}</Layout>
+      {/* <Layout>{authContext.isAuth ? routs : <Auth />}</Layout> */}
     </div>
   );
 }

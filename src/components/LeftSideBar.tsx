@@ -1,5 +1,6 @@
 import React from "react";
 import { FaCloud, FaBookmark } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import "../styles/LeftSideBar.css";
 
 interface LeftSideBarProps {}
@@ -8,10 +9,10 @@ const LeftSideBar: React.FC<LeftSideBarProps> = () => {
   return (
     <div className="sideBar">
       <nav>
-        <Link to="/search">
+        <Link to="/">
           <FaCloud />
         </Link>
-        <Link to="/favorites">
+        <Link to="/bookmarks">
           <FaBookmark />
         </Link>
       </nav>
