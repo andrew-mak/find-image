@@ -1,9 +1,18 @@
-type AuthContextType = {
+type AuthContext = {
   isAuth: boolean,
   login: () => void,
 }
 
-interface IAuth {
-  login: () => void,
-  isAuth: boolean;
-}
+type httpActions = {
+  type: httpActionKind;
+  responseData?: any;
+  errorMessage?: string;
+};
+
+type httpState = {
+  loading: bool,
+  error?: string | null,
+  data?: any,
+};
+
+type httpActionKind = "SEND" | "RESPONSE" | "ERROR" | "CLEAR";

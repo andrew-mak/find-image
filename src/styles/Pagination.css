@@ -1,0 +1,30 @@
+.controlsBlock {
+  /* min-width: 180px; */
+  display: flex;
+  margin: 20px;
+  justify-content: flex-end;
+}
+
+.controlStyle {
+  min-width: 100px;
+  height: 28px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  border: 1px solid #d0d0d0;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.controlsBlock .pageInput {
+  height: 100%;
+  min-width: 26px;
+  max-width: min-content;
+  margin: 0 2px;
+  padding: 0;
+  border: 1px solid #d0d0d0;
+  text-align: center;
+}

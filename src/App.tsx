@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import "./App.css";
 import { Route, Switch } from "react-router-dom";
-import { AuthContext } from "./context/auth-context";
+import { AuthContext } from "./context/authContext";
 import Layout from "./components/Layout";
 import Auth from "./components/Auth";
 import SearchImages from "./components/Images/SearchImages";
