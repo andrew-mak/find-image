@@ -13,3 +13,25 @@
   padding: 12px 10px;
   font-size: 1rem;
 }
+
+.resultsBox {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 32px;
+}
+
+.card {
+  width: 25%;
+  height: 300px;
+  margin: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid darkgray;
+}
+
+.actionsBar {
+  height: 50px;
+  display: flex;
+  flex-direction: column;
+}
