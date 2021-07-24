@@ -1,7 +1,7 @@
 import React from "react";
 import { FaCloud, FaBookmark } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import "../styles/LeftSideBar.css";
+import "../../styles/LeftSideBar.css";
 
 interface LeftSideBarProps {}
 

@@ -1,8 +1,10 @@
 import React, { ReactNode, useEffect, useRef } from "react";
 import { useState } from "react";
 import useHttp from "../../hooks/http";
+import Pagination from "../UI/Pagination";
+import ImageItem from "./ImageItem";
 import "../../styles/SearchImages.css";
-import Pagination from "../Pagination";
+import { useCallback } from "react";
 
 interface SearchImagesProps {}
 
@@ -16,23 +18,22 @@ const SearchImages: React.FC<SearchImagesProps> = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { isLoading, data, error, sendRequest } = useHttp();
 
-  const makeImgs = (srcArr: any[]) => {
+  useEffect(() => {});
+
+  const makeImgs = useCallback((srcArr: any[]) => {
     const images = srcArr.map(img => (
-      <div className="card" key={img.id}>
-        <img
-          src={`https://live.staticflickr.com/${img.server}/${img.id}_${
-            img.secret
-          }_${"m"}.jpg`}
-          alt={img.title}
+      <>
+        <ImageItem
+          key={img.id + img.secret + img.server}
+          id={img.id}
+          secret={img.secret}
+          server={img.server}
+          title={img.title}
         />
-        <div className="imgTitle">{img.title}</div>
-        <div className="actionsBar">
-          <button>Bookmark it V</button>
-        </div>
-      </div>
+      </>
     ));
     setReadyImages(images);
-  };
+  }, []);
 
   useEffect(() => {
     console.log("data: ", data);
@@ -43,7 +44,7 @@ const SearchImages: React.FC<SearchImagesProps> = () => {
         total: data.photos.pages,
       });
     }
-  }, [data, error, isLoading]);
+  }, [data, error, isLoading, makeImgs]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -84,6 +85,7 @@ const SearchImages: React.FC<SearchImagesProps> = () => {
     <div className="searchBox">
       <input
         type="text"
+        className="searchInput"
         ref={inputRef}
         placeholder="Find Images"
         value={enteredQuery}

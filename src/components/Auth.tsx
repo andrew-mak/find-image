@@ -6,7 +6,7 @@ const Auth = () => {
   const authContext = useContext(AuthContext);
 
   const loginHandler = () => {
-    authContext.login();
+    authContext.authState.login();
   };
 
   return (

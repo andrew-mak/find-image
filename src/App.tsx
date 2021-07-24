@@ -2,10 +2,10 @@ import React, { useContext } from "react";
 import "./App.css";
 import { Route, Switch } from "react-router-dom";
 import { AuthContext } from "./context/authContext";
-import Layout from "./components/Layout";
+import Layout from "./components/UI/Layout";
 import Auth from "./components/Auth";
-import SearchImages from "./components/Images/SearchImages";
-import Bookmarks from "./components/Images/Bookmarks";
+import SearchImages from "./components/Image/SearchImages";
+import Bookmarks from "./components/Image/Bookmarks";
 
 function App() {
   const authContext = useContext(AuthContext);
@@ -13,7 +13,7 @@ function App() {
   const routs = (
     <Switch>
       <Route path="/bookmarks">
-        {authContext.isAuth ? <Bookmarks /> : <Auth />}
+        {authContext.authState.isAuth ? <Bookmarks /> : <Auth />}
       </Route>
       <Route path="/" component={SearchImages} />
     </Switch>

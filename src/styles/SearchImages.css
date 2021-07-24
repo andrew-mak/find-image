@@ -6,7 +6,7 @@
   flex-direction: column;
 }
 
-.searchBox input {
+.searchBox .searchInput {
   width: 90%;
   height: 22px;
   margin: auto;
@@ -18,20 +18,4 @@
   display: flex;
   flex-wrap: wrap;
   padding: 32px;
-}
-
-.card {
-  width: 25%;
-  height: 300px;
-  margin: 12px;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid darkgray;
-}
-
-.actionsBar {
-  height: 50px;
-  display: flex;
-  flex-direction: column;
 }

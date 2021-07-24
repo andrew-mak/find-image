@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
-import "../styles/Pagination.css";
+import "../../styles/Pagination.css";
 
 interface PaginationProps {
   total: number | null;

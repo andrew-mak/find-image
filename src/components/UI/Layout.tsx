@@ -1,6 +1,6 @@
 import React from "react";
 import LeftSideBar from "./LeftSideBar";
-import "../styles/Layout.css";
+import "../../styles/Layout.css";
 
 interface LayoutProps {}
 

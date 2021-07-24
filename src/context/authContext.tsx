@@ -1,15 +1,23 @@
 import React, { createContext, useState } from "react";
 
-const contextDefaultValues: AuthContext = {
-  isAuth: false,
-  login: () => {},
+const initUserState: userState = {
+  authState: {
+    isAuth: false,
+    user: null,
+    token: null,
+    login: () => {},
+  },
+  searchState: {
+    query: null,
+    page: null,
+  },
 };
 
-export const AuthContext = createContext<AuthContext>(contextDefaultValues);
+export const AuthContext = createContext<userState>(initUserState);
 
 const AuthContextProvider: React.FC = ({ children }) => {
   const [isAuth, setIsAuthenticated] = useState<boolean>(
-    contextDefaultValues.isAuth
+    initUserState.authState.isAuth
   );
 
   const login = () => {
@@ -19,8 +27,16 @@ const AuthContextProvider: React.FC = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
-        login,
-        isAuth,
+        authState: {
+          login,
+          isAuth,
+          token: null,
+          user: null,
+        },
+        searchState: {
+          query: null,
+          page: null,
+        },
       }}
     >
       {children}
