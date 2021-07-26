@@ -12,9 +12,11 @@ function App() {
 
   const routs = (
     <Switch>
+      <Route path="/search" component={SearchImages} />
       <Route path="/bookmarks">
         {authContext.authState.isAuth ? <Bookmarks /> : <Auth />}
       </Route>
+      <Route path="/login" component={Auth} />
       <Route path="/" component={SearchImages} />
     </Switch>
   );

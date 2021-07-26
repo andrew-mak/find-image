@@ -10,6 +10,8 @@ const Bookmarks: React.FC = () => {
   if (bookmarks && bookmarks.length) {
     bokmarkedImages = bookmarks.map(item => (
       <ImageItem
+        classes={"bookmark-btn delete-btn"}
+        btnCaption={"Delete"}
         item={item}
         tagsHandler={tags => {
           dispatch({ type: "EDIT_TAGS", tags, id: item.id });

@@ -33,7 +33,7 @@
   background-color: #f0f0f0;
 }
 
-.bookmarkButton {
+.bookmark-btn {
   width: 94px;
   height: 28px;
   margin-top: 12px;
@@ -46,6 +46,9 @@
   cursor: pointer;
 }
 
-.fromboomarks {
+.delete-btn {
   background-color: #ce4b6c;
+}
+.forbidden-btn {
+  background-color: #7c7c7c;
 }

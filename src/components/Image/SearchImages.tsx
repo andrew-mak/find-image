@@ -71,6 +71,13 @@ const SearchImages: React.FC = React.memo(() => {
           const target = bookmarks.find((b: IBookmark) => b.id === img.id);
           if (target) isInBookmarks = target.isInBookmarks;
         }
+        let classNames = "bookmark-btn ";
+        let caption = "Bookmark it";
+        if (!authState.isAuth) classNames += " forbidden-btn";
+        if (authState.isAuth && isInBookmarks) {
+          caption = "Delete";
+          classNames += " delete-btn";
+        }
         const src = `https://live.staticflickr.com/${img.server}/${img.id}_${
           img.secret
         }_${"m"}.jpg`;
@@ -84,12 +91,10 @@ const SearchImages: React.FC = React.memo(() => {
         return (
           <ImageItem
             item={item}
+            classes={classNames}
+            btnCaption={caption}
             tagsHandler={tags => workWithTags(tags, item.id)}
-            toggleBookmark={() =>
-              item.isInBookmarks && authState.isAuth
-                ? dispatch({ type: "DELETE", bookmark: item })
-                : dispatch({ type: "ADD", bookmark: item })
-            }
+            toggleBookmark={item => toggleBookmarkHandler(item)}
           />
         );
       });
@@ -144,6 +149,14 @@ const SearchImages: React.FC = React.memo(() => {
       currentPage: prev.currentPage + move,
     }));
     console.log(target);
+  };
+
+  const toggleBookmarkHandler = (item: ImageItem) => {
+    if (authState.isAuth) {
+      item.isInBookmarks
+        ? dispatch({ type: "DELETE", bookmark: item })
+        : dispatch({ type: "ADD", bookmark: item });
+    }
   };
 
   return (

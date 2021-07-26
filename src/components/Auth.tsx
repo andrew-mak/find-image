@@ -1,8 +1,7 @@
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../context/authContext";
-import "../styles/Auth.css";
-// import postData from "../util/postData";
 import LoginButton from "./LoginButton";
+import "../styles/Auth.css";
 
 const Auth = () => {
   const authContext = useContext(AuthContext);
@@ -54,8 +53,10 @@ const Auth = () => {
         <button type="submit" onClick={loginHandler}>
           Log In
         </button>
-        <p>or Login with Evernote</p>
-        <LoginButton />
+        <div className="extra-login-box">
+          <h4>or Login with Evernote</h4>
+          <LoginButton />
+        </div>
       </form>
     </div>
   );
