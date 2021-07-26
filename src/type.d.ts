@@ -32,20 +32,25 @@ type BookmarksAction = {
   type: BookmarkActionKind;
   bookmark?: ImageItem;
   data?: any;
+  id?: string;
+  tags?: string[] | null;
 };
 
-// type BookmarksState = IBookmark[];
-
-// interface Bookmarks {
-//   bookmarks: IBookmark[];
-//   dispatch?: React.Dispatch<Action>;
-// }
+type ResponseData = {
+  page: number;
+  pages: number;
+  perpage: number;
+  total: number;
+  photo: [];
+}
 
 type ImageItem = {
   id: string;
   title: string;
+  server: string;
+  secret: string;
   isInBookmarks: boolean;
-  tags: string[] | null;
+  tags: Tag[];
 };
 
 type DispatchBookmarks = (action: BookmarksAction) => void;
@@ -59,4 +64,4 @@ type ImageAction = {
 };
 
 type HttpActionKind = "SEND" | "RESPONSE" | "ERROR" | "CLEAR";
-type BookmarkActionKind = "SET" | "ADD" | "DELETE";
+type BookmarkActionKind = "SET" | "ADD" | "EDIT_TAGS" | "DELETE";

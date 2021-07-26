@@ -1,14 +1,23 @@
 import React from "react";
-import "../../styles/ImageItem.css";
+import { Tag } from "react-tag-input";
 import TagsBox from "../UI/TagsBox";
+import "../../styles/ImageItem.css";
 
 interface IImageItemProps {
   item: IBookmark;
+  tagsHandler: (tags: string[] | null) => void;
   toggleBookmark: (bookmark: IBookmark) => void;
 }
 
 const ImageItem: React.FC<IImageItemProps> = React.memo(
-  ({ item, toggleBookmark }) => {
+  ({ item, toggleBookmark, tagsHandler }) => {
+    console.log("Render CARD");
+    console.log("item: ", item);
+
+    let tags = [] as Tag[];
+    if (item.tags && item.tags.length) {
+      tags = item.tags.map(t => ({ id: t, text: t }));
+    }
     return (
       <div className="card">
         <div className="imageContainer">
@@ -25,9 +34,9 @@ const ImageItem: React.FC<IImageItemProps> = React.memo(
             }
             onClick={toggleBookmark.bind(this, item)}
           >
-            {item.isInBookmarks ? "Delete" :"Bookmark it"}
+            {item.isInBookmarks ? "Delete" : "Bookmark it"}
           </button>
-          <TagsBox />
+          <TagsBox tags={tags} tagsHandler={tagsHandler} />
         </div>
       </div>
     );

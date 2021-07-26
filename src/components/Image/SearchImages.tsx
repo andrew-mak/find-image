@@ -1,58 +1,76 @@
-import React, { ReactNode, useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { useState } from "react";
-import useHttp from "../../hooks/http";
 import Pagination from "../UI/Pagination";
 import ImageItem from "./ImageItem";
 import { useCallback } from "react";
 import { Bookmarks } from "./../../store/bookmarks";
-import "../../styles/SearchImages.css";
 import { AuthContext } from "../../context/authContext";
+import "../../styles/SearchImages.css";
 
 const SearchImages: React.FC = React.memo(() => {
-  const [enteredQuery, setEnteredQuery] = useState("");
-  const [pagination, setPagination] = useState({
-    total: 1,
-    current: 1,
-  });
-  const [readyImages, setReadyImages] = useState<null | ReactNode[]>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { isLoading, data, error, sendRequest } = useHttp();
+  const { authState } = useContext(AuthContext);
+  const searchContext = useContext(AuthContext).searchState;
 
-  const authContext = useContext(AuthContext);
+  const [userInput, setUserInput] = useState(searchContext.query || "");
+  const [
+    { currentPage, totalPages, srcImages, isLoading, error },
+    setSearchState,
+  ] = useState({
+    currentPage: searchContext.page || 1,
+    totalPages: 1,
+    srcImages: null as null | ImageItem[],
+    isLoading: false as boolean,
+    error: null as null | Error,
+  });
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const { bookmarks, dispatch } = useContext(Bookmarks);
 
   useEffect(() => {
-    if (authContext.searchState.query && !enteredQuery) {
-      console.log("setting query");
-      setEnteredQuery(authContext.searchState.query);
-    }
-    if (authContext.searchState.page) {
-      console.log("setting pages");
-      setPagination(prev => ({
+    const fethcData = async () => {
+      let data = await fetch(
+        `https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=189f9704c734c2efe2932a78628553c7&text=${userInput}&per_page=10&page=${currentPage}&format=json&nojsoncallback=1`,
+        { method: "GET" }
+      )
+        .then(response => response.json())
+        .then(responseData => responseData)
+        .catch(error => error);
+      if (data && data.stat === "ok") {
+        setSearchState({
+          srcImages: data.photos.photo,
+          currentPage: data.photos.page,
+          totalPages: data.photos.pages,
+          isLoading: false,
+          error: null,
+        });
+      }
+    };
+    if (userInput.trim().length > 0) {
+      fethcData();
+      setSearchState(prev => ({
         ...prev,
-        current: authContext.searchState.page as number,
+        isLoading: true,
+        error: null,
       }));
     }
-  }, [
-    authContext.searchState.query,
-    authContext.searchState.page,
-    enteredQuery,
-  ]);
+  }, [userInput, currentPage]);
+
+  const workWithTags = useCallback(
+    (tags: string[] | null, id: string) => {
+      dispatch({ type: "EDIT_TAGS", tags, id });
+    },
+    [dispatch]
+  );
 
   const makeImages = useCallback(
-    (srcArr: any[]) => {
-      console.log("[in make]");
+    (srcArr: ImageItem[]) => {
       const images = srcArr.map(img => {
         let isInBookmarks = false;
-        let tags = null;
         if (bookmarks && bookmarks.length) {
           const target = bookmarks.find((b: IBookmark) => b.id === img.id);
-          if (target) {
-            isInBookmarks = true;
-            tags = target.tags;
-          }
+          if (target) isInBookmarks = target.isInBookmarks;
         }
-        console.log(isInBookmarks);
         const src = `https://live.staticflickr.com/${img.server}/${img.id}_${
           img.secret
         }_${"m"}.jpg`;
@@ -61,68 +79,70 @@ const SearchImages: React.FC = React.memo(() => {
           title: img.title,
           src,
           isInBookmarks: isInBookmarks,
-          tags,
+          tags: img.tags,
         } as IBookmark;
         return (
           <ImageItem
             item={item}
-            toggleBookmark={() => {
-              console.log("[toggle Search]: item", item);
-              item.isInBookmarks
+            tagsHandler={tags => workWithTags(tags, item.id)}
+            toggleBookmark={() =>
+              item.isInBookmarks && authState.isAuth
                 ? dispatch({ type: "DELETE", bookmark: item })
-                : dispatch({ type: "ADD", bookmark: item });
-            }}
+                : dispatch({ type: "ADD", bookmark: item })
+            }
           />
         );
       });
-      setReadyImages(images);
+      return images;
     },
-    [bookmarks, dispatch]
+    [bookmarks, dispatch, authState.isAuth, workWithTags]
   );
 
+  let imagesCards = null;
+  console.log(srcImages);
+  if (srcImages) {
+    imagesCards = makeImages(srcImages);
+  }
+
   useEffect(() => {
-    console.log("[Search useEff] data: ", data);
-    if (!isLoading && !error && data) {
-      makeImages(data.photos.photo);
-      authContext.searchState.page = data.photos.page;
-      setPagination({
-        current: data.photos.page,
-        total: data.photos.pages,
-      });
+    if (!isLoading && !error && !srcImages) {
+      if (searchContext.page !== null && searchContext.query) {
+        setSearchState(prev => ({
+          ...prev,
+          currentPage: searchContext.page!,
+          isLoading: true,
+        }));
+        setUserInput(searchContext.query);
+      }
     }
-  }, [data, error, isLoading, makeImages, authContext.searchState]);
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       if (
         inputRef.current &&
         inputRef.current.value.length !== 0 &&
-        enteredQuery === inputRef.current.value
-      ) {
-        const query = enteredQuery;
-        authContext.searchState.query = query;
-        sendRequest(
-          `https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=189f9704c734c2efe2932a78628553c7&text=${query}&per_page=10&page=${pagination.current}&format=json&nojsoncallback=1`,
-          "GET"
-        );
-      }
+        userInput === inputRef.current.value
+      )
+        searchContext.query = userInput;
+      searchContext.page = currentPage;
     }, 1000);
     return () => clearTimeout(timer);
-  }, [enteredQuery, sendRequest, authContext.searchState]);
+  }, [userInput]);
 
   const paginateOnClick = (event: React.MouseEvent<HTMLElement>) => {
     const target = event.target as HTMLElement;
-    if (!pagination.current || !target.id) return;
+    if (!currentPage || !target.id) return;
     let move = 0;
-    if (target.id === "toPrev" && pagination.current > 1) move = -1;
-    else if (target.id === "toNext" && pagination.current < pagination.total)
+    if (target.id === "toPrev" && currentPage > 1) move = -1;
+    else if (target.id === "toNext" && currentPage < totalPages) {
       move = 1;
-    sendRequest(
-      `https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=189f9704c734c2efe2932a78628553c7&text=${enteredQuery}&per_page=10&page=${
-        pagination.current + move
-      }&format=json&nojsoncallback=1`,
-      "GET"
-    );
+    }
+    console.log("move", move);
+    setSearchState(prev => ({
+      ...prev,
+      currentPage: prev.currentPage + move,
+    }));
     console.log(target);
   };
 
@@ -133,13 +153,14 @@ const SearchImages: React.FC = React.memo(() => {
         className="searchInput"
         ref={inputRef}
         placeholder="Find Images"
-        value={enteredQuery}
-        onChange={event => setEnteredQuery(event.target.value)}
+        value={userInput}
+        onChange={event => setUserInput(event.target.value)}
       />
-      {readyImages ? (
+      {imagesCards ? (
         <div className="paginationBox">
           <Pagination
-            {...pagination}
+            current={currentPage}
+            total={totalPages}
             paginationClickHandler={paginateOnClick}
           />
         </div>
@@ -149,8 +170,8 @@ const SearchImages: React.FC = React.memo(() => {
           <h3>NSomething went wrong... :(</h3>
         ) : isLoading ? (
           <h3>Loading...</h3>
-        ) : readyImages ? (
-          readyImages
+        ) : imagesCards ? (
+          imagesCards
         ) : (
           <h3>No images here. Would you try to search for anything else?</h3>
         )}
