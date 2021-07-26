@@ -1,0 +1,9 @@
+.bookmarks {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.bookmarks h2 {
+  width: 100%;
+  margin: 12px auto;
+}

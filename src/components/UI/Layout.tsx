@@ -1,6 +1,7 @@
 import React from "react";
 import LeftSideBar from "./LeftSideBar";
 import "../../styles/Layout.css";
+import { BookmarksProvider } from "../../store/bookmarks";
 
 interface LayoutProps {}
 
@@ -13,7 +14,9 @@ const Layout: React.FC<LayoutProps> = props => {
       </header>
       <main>
         <LeftSideBar />
-        <div className="contentBox">{props.children}</div>
+        <BookmarksProvider>
+          <div className="contentBox">{props.children}</div>
+        </BookmarksProvider>
       </main>
       <footer>
         <div className="text">

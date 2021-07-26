@@ -3,7 +3,7 @@ type AuthContext = {
   login: () => void,
 }
 
-type userState = {
+type UserState = {
   authState: {
     isAuth: boolean,
     user: null | string,
@@ -16,16 +16,47 @@ type userState = {
   },
 }
 
-type httpActions = {
+type HttpActions = {
   type: httpActionKind;
   responseData?: any;
   errorMessage?: string;
 };
 
-type httpState = {
+type HttpState = {
   loading: bool,
   error?: string | null,
   data?: any,
 };
 
-type httpActionKind = "SEND" | "RESPONSE" | "ERROR" | "CLEAR";
+type BookmarksAction = {
+  type: BookmarkActionKind;
+  bookmark?: ImageItem;
+  data?: any;
+};
+
+// type BookmarksState = IBookmark[];
+
+// interface Bookmarks {
+//   bookmarks: IBookmark[];
+//   dispatch?: React.Dispatch<Action>;
+// }
+
+type ImageItem = {
+  id: string;
+  title: string;
+  isInBookmarks: boolean;
+  tags: string[] | null;
+};
+
+type DispatchBookmarks = (action: BookmarksAction) => void;
+
+interface IBookmark extends ImageItem {
+  src: string;
+}
+
+type ImageAction = {
+  [key: string]: Function;
+};
+
+type HttpActionKind = "SEND" | "RESPONSE" | "ERROR" | "CLEAR";
+type BookmarkActionKind = "SET" | "ADD" | "DELETE";
