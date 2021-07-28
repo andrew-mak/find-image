@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Tag, WithContext as ReactTags } from "react-tag-input";
-import "../../styles/TagsBox.css";
+import "../../styles/ReactTags.css";
 
 interface TagsBoxProps {
   tagsHandler: (tags: string[] | null) => void;
@@ -51,15 +51,18 @@ const TagsBox: React.FC<TagsBoxProps> = ({ tagsHandler, tags }) => {
     tagsHandler([...newTags].map(t => t.text));
   };
   return (
-    <div className="tagsBox">
+    <>
       <ReactTags
+        autofocus={false}
+        placeholder={"add tag "}
+        inputFieldPosition={"inline"}
         tags={tagsState}
         handleDelete={handleDelete}
         handleAddition={handleAddition}
         handleDrag={handleDrag}
         delimiters={delimiters}
       />
-    </div>
+    </>
   );
 };
 

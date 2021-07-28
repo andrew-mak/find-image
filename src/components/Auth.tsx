@@ -1,64 +1,150 @@
+import {
+  Button,
+  Divider,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import React, { useContext, useState } from "react";
+import { useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
 import LoginButton from "./LoginButton";
-import "../styles/Auth.css";
+import AuthFormContainer from "./UI/AuthFormContainer";
 
-const Auth = () => {
-  const authContext = useContext(AuthContext);
-  const [formState, setFormState] = useState({ email: "", password: "" });
+type AuthProps = {
+  action: "login" | "register";
+  showWarning?: boolean;
+};
 
-  const loginHandler = () => {
-    authContext.authState.user = formState.email;
+const Auth: React.FC<AuthProps> = ({ action, showWarning }) => {
+  const { isAuth, auth, userData } = useContext(AuthContext);
+  const [formState, setFormState] = useState({
+    name: "",
+    email: "",
+    password: "",
+    isLoading: false,
+    error: null,
+  });
+  const [authWay, setAuthWay] = useState(action || "login");
+  const { push } = useHistory();
+
+  useEffect(() => {
+    if (isAuth) push("/bookmarks");
+  }, [isAuth, push]);
+
+  const loginHandler = (event: React.FormEvent) => {
+    event.preventDefault();
+    userData.email = formState.email;
     if (formState.email.trim() && formState.password.trim()) {
-      authContext.authState.login();
+      const data = {
+        email: formState.email,
+        name: formState.name,
+        password: formState.password,
+        returnSecureToken: true,
+      };
+      auth(data, authWay);
+      setFormState(prev => ({ ...prev, isLoading: true, error: null }));
     }
   };
 
   const onInputChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     const target = event.target;
-    if (target.name! === "email")
+    if (target.name === "email")
       setFormState(prev => ({ ...prev, email: target.value }));
     else if (target.name === "password")
       setFormState(prev => ({ ...prev, password: target.value }));
+    else if (target.name === "name")
+      setFormState(prev => ({ ...prev, name: target.value }));
+  };
+
+  const changeAuthWay = () => {
+    setAuthWay(prev => (prev === "login" ? "register" : "login"));
   };
 
   return (
-    <div className="auth">
-      <form className="authForm">
-        <h2>You are not authenticated! </h2>
-        <p> Please log in to continue.</p>
-        <label htmlFor="email">
-          <b>Email</b>
-        </label>
-        <input
-          onChange={onInputChanged}
-          type="text"
-          value={formState.email}
-          placeholder="Enter Email"
-          name="email"
-          required
-        />
+    <AuthFormContainer action={authWay}>
+      <form>
+        <Stack>
+          {showWarning ? (
+            <>
+              <Heading size="md">You are not authenticated! </Heading>
+              <Text> Please log in to continue.</Text>
+            </>
+          ) : null}
 
-        <label htmlFor="password">
-          <b>Password</b>
-        </label>
-        <input
-          onChange={onInputChanged}
-          value={formState.password}
-          type="password"
-          placeholder="Enter Password"
-          name="password"
-          required
-        ></input>
-        <button type="submit" onClick={loginHandler}>
-          Log In
-        </button>
-        <div className="extra-login-box">
-          <h4>or Login with Evernote</h4>
+          {authWay === "register" ? (
+            <FormControl id="name" isRequired>
+              <FormLabel>Display name</FormLabel>
+              <Input
+                type="text"
+                name="name"
+                placeholder="Enter name"
+                onChange={onInputChanged}
+                value={formState.name}
+                size="sm"
+              />
+            </FormControl>
+          ) : null}
+
+          <FormControl id="email" isRequired>
+            <FormLabel>Email address</FormLabel>
+            <Input
+              type="email"
+              name="email"
+              placeholder="Enter Email"
+              onChange={onInputChanged}
+              value={formState.email}
+              size="sm"
+            />
+          </FormControl>
+
+          <FormControl id="password" isRequired>
+            <FormLabel>Password</FormLabel>
+            <Input
+              type="password"
+              name="password"
+              placeholder="Enter Password"
+              onChange={onInputChanged}
+              value={formState.password}
+              size="sm"
+            />
+          </FormControl>
+          <Flex py="20px">
+            <Button
+              type="submit"
+              onClick={event => loginHandler(event)}
+              colorScheme="blue"
+              fontWeight="normal"
+              fontSize="1.1rem"
+              textTransform="capitalize"
+              isLoading={formState.isLoading}
+            >
+              {authWay}
+            </Button>
+
+            <Button
+              ml="auto"
+              variant="outline"
+              borderWidth="1px"
+              onClick={changeAuthWay}
+              colorScheme="orange"
+              fontWeight="normal"
+              fontSize="1.1rem"
+            >
+              or {authWay === "login" ? "Register" : "Login"}
+            </Button>
+          </Flex>
+
+          <Divider />
           <LoginButton />
-        </div>
+        </Stack>
       </form>
-    </div>
+    </AuthFormContainer>
   );
 };
 

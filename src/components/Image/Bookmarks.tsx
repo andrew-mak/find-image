@@ -1,7 +1,8 @@
 import React from "react";
 import { useBookmarks } from "../../store/bookmarks";
 import ImageItem from "./ImageItem";
-import "./../../styles/Bookmarks.css";
+import { Flex, Heading } from "@chakra-ui/react";
+// import "./../../styles/Bookmarks.css";
 
 const Bookmarks: React.FC = () => {
   const { dispatch, bookmarks } = useBookmarks();
@@ -10,8 +11,8 @@ const Bookmarks: React.FC = () => {
   if (bookmarks && bookmarks.length) {
     bokmarkedImages = bookmarks.map(item => (
       <ImageItem
-        classes={"bookmark-btn delete-btn"}
-        btnCaption={"Delete"}
+        colScheme="red"
+        btnCaption="Delete"
         item={item}
         tagsHandler={tags => {
           dispatch({ type: "EDIT_TAGS", tags, id: item.id });
@@ -21,10 +22,14 @@ const Bookmarks: React.FC = () => {
     ));
   }
   return (
-    <div className="bookmarks">
-      <h2>Bookmarks</h2>
-      {bokmarkedImages ? bokmarkedImages : <p>Nothing here yet :(</p>}
-    </div>
+    <Flex flexWrap="wrap" ml="64px" justifyContent="center">
+      <Heading as="h2" w="100%" size="lg" mt="40px">
+        Bookmarks
+      </Heading>
+      <Flex flexWrap="wrap" justifyContent="center" p="60px 4px">
+        {bokmarkedImages ? bokmarkedImages : <p>Nothing here yet :(</p>}
+      </Flex>
+    </Flex>
   );
 };
 

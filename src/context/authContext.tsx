@@ -1,53 +1,83 @@
 import React, { createContext, useState } from "react";
-import postData from "../util/postData";
 
-const initUserState: UserState = {
-  authState: {
-    isAuth: Boolean(localStorage.getItem("request_token_pocket")),
-    user: null,
-    token: null,
-    login: () => {},
+const initUserState: IUserState = {
+  isAuth: Boolean(localStorage.getItem("token")),
+  auth: () => {},
+  setLastSearch: () => {},
+  userData: {
+    userName: localStorage.getItem("userName") || null,
+    token: localStorage.getItem("token") || null,
+    email: localStorage.getItem("email") || null,
   },
-  searchState: {
+  lastSearch: {
     query: null,
     page: null,
   },
 };
 
-export const AuthContext = createContext<UserState>(initUserState);
+export const AuthContext = createContext<IUserState>(initUserState);
 
 const AuthContextProvider: React.FC = ({ children }) => {
-  const [isAuth, setIsAuthenticated] = useState<boolean>(
-    initUserState.authState.isAuth
-  );
+  const [isAuth, setIsAuthenticated] = useState<boolean>(initUserState.isAuth);
+  const [userData, setUserData] = useState(initUserState.userData);
+  const [search, setSearch] = useState(initUserState.lastSearch);
 
-  const request_token_pocket = localStorage.getItem("request_token_pocket");
+  const auth = (authData: AuthData, action: "login" | "register") => {
+    console.log("action: ", action);
+    let data = JSON.stringify(authData);
+    let url =
+      "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCVhAIbllGCjsLt-6w0tkaquGOFR6dNrIA";
+    if (action === "register") {
+      url =
+        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCVhAIbllGCjsLt-6w0tkaquGOFR6dNrIA";
+    }
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json;charset=utf-8",
+      },
+      body: data,
+    })
+      .then(response => response.json())
+      .then(result => {
+        console.log(result);
+        const expirationDate = new Date(
+          new Date().getTime() + result.expiresIn * 1000
+        );
+        localStorage.setItem("token", result.idToken);
+        localStorage.setItem("expirationDate", expirationDate.toString());
+        localStorage.setItem("userId", result.localId);
+        localStorage.setItem("email", result.email);
+        localStorage.setItem("userName", result.displayName);
 
-  if (request_token_pocket) {
-    postData("https://getpocket.com/v3/oauth/authorize", {
-      consumer_key: "98304-f4372dbe518588db2ce4aa9d",
-      code: request_token_pocket,
-    }).then((data: any) => {
-      console.log(data);
-    });
-  }
+        setIsAuthenticated(true);
+        setUserData({
+          userName: result.displayName,
+          email: result.email,
+          token: result.token,
+        });
+      })
+      .catch(error => {
+        console.log("Error: ", error);
+        // dispatch(authFail(error.response.data.error));
+      });
+  };
 
-  const login = () => {
-    setIsAuthenticated(true);
+  const setLastSearch = (page: number, query: string) => {
+    setSearch({ page, query });
   };
 
   return (
     <AuthContext.Provider
       value={{
-        authState: {
-          login,
-          isAuth,
-          token: null,
-          user: null,
+        isAuth,
+        auth,
+        setLastSearch,
+        userData: {
+          ...userData,
         },
-        searchState: {
-          query: null,
-          page: null,
+        lastSearch: {
+          ...search,
         },
       }}
     >

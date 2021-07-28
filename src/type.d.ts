@@ -3,18 +3,27 @@ type AuthContext = {
   login: () => void,
 }
 
-type UserState = {
-  authState: {
-    isAuth: boolean,
-    user: null | string,
+interface IUserState {
+  isAuth: boolean,
+  auth: (d: AuthData, a: "login" | "register") => void,
+  setLastSearch: (p: number, q: string) => void;
+  userData: {
+    userName: null | string,
+    email: null | string,
     token: null | string,
-    login: () => void,
   },
-  searchState: {
+  lastSearch: {
     query: null | string,
     page: null | number,
   },
 }
+
+type AuthData = {
+  name?: string;
+  email: string;
+  password: string;
+  returnSecureToken: boolean;
+};
 
 type HttpActions = {
   type: httpActionKind;
@@ -36,7 +45,7 @@ type BookmarksAction = {
   tags?: string[] | null;
 };
 
-type ResponseData = {
+type ResponseFlickrPhotos = {
   page: number;
   pages: number;
   perpage: number;

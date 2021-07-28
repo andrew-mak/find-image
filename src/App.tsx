@@ -14,7 +14,7 @@ function App() {
     <Switch>
       <Route path="/search" component={SearchImages} />
       <Route path="/bookmarks">
-        {authContext.authState.isAuth ? <Bookmarks /> : <Auth />}
+        {authContext.isAuth ? <Bookmarks /> : <Auth action="login" />}
       </Route>
       <Route path="/login" component={Auth} />
       <Route path="/" component={SearchImages} />

@@ -1,18 +1,19 @@
+import { Center, Flex, Text, WrapItem } from "@chakra-ui/react";
 import React from "react";
 import { Tag } from "react-tag-input";
+import BasicButton from "../UI/BasicButton";
 import TagsBox from "../UI/TagsBox";
-import "../../styles/ImageItem.css";
 
 interface IImageItemProps {
   item: IBookmark;
-  classes: string;
+  colScheme: string;
   btnCaption: string;
   tagsHandler: (tags: string[] | null) => void;
   toggleBookmark: (bookmark: IBookmark) => void;
 }
 
 const ImageItem: React.FC<IImageItemProps> = React.memo(
-  ({ item, classes, btnCaption, toggleBookmark, tagsHandler }) => {
+  ({ item, colScheme, btnCaption, toggleBookmark, tagsHandler }) => {
     console.log("Render CARD");
     console.log("item: ", item);
 
@@ -22,19 +23,24 @@ const ImageItem: React.FC<IImageItemProps> = React.memo(
     }
 
     return (
-      <div className="card">
-        <div className="imageContainer">
-          <img src={item.src} alt={item.title.slice(0, 26)} />
-        </div>
-        <div className="imageTitle">{item.title.slice(0, 46)}</div>
-        <div className="actionsBar">
-          <h4>{item.isInBookmarks}</h4>
-          <button className={classes} onClick={() => toggleBookmark(item)}>
-            {btnCaption}
-          </button>
-          <TagsBox tags={tags} tagsHandler={tagsHandler} />
-        </div>
-      </div>
+      <WrapItem key={item.id} border="1px solid lightgray">
+        <Flex direction="column" h="100%">
+          <Center flexDirection="column" p="14px 16px">
+            <img src={item.src} alt={item.title.slice(0, 26)} />
+            <Text maxW="360px" pt="6px" fontSize="md" isTruncated>
+              {item.title}
+            </Text>
+          </Center>
+          <Flex mt="auto" p="14px 16px" bgColor="#eeeeee">
+            <BasicButton
+              colScheme={colScheme || "blue"}
+              btnCaption={btnCaption}
+              onClick={() => toggleBookmark(item)}
+            />
+            <TagsBox tags={tags} tagsHandler={tagsHandler} />
+          </Flex>
+        </Flex>
+      </WrapItem>
     );
   }
 );

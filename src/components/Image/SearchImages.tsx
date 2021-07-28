@@ -5,18 +5,17 @@ import ImageItem from "./ImageItem";
 import { useCallback } from "react";
 import { Bookmarks } from "./../../store/bookmarks";
 import { AuthContext } from "../../context/authContext";
-import "../../styles/SearchImages.css";
+import { Flex, Input, Wrap } from "@chakra-ui/react";
 
 const SearchImages: React.FC = React.memo(() => {
-  const { authState } = useContext(AuthContext);
-  const searchContext = useContext(AuthContext).searchState;
+  const { isAuth, lastSearch, setLastSearch } = useContext(AuthContext);
 
-  const [userInput, setUserInput] = useState(searchContext.query || "");
+  const [userInput, setUserInput] = useState(lastSearch.query || "");
   const [
     { currentPage, totalPages, srcImages, isLoading, error },
     setSearchState,
   ] = useState({
-    currentPage: searchContext.page || 1,
+    currentPage: lastSearch.page || 1,
     totalPages: 1,
     srcImages: null as null | ImageItem[],
     isLoading: false as boolean,
@@ -71,12 +70,12 @@ const SearchImages: React.FC = React.memo(() => {
           const target = bookmarks.find((b: IBookmark) => b.id === img.id);
           if (target) isInBookmarks = target.isInBookmarks;
         }
-        let classNames = "bookmark-btn ";
+        let colScheme = "blue";
         let caption = "Bookmark it";
-        if (!authState.isAuth) classNames += " forbidden-btn";
-        if (authState.isAuth && isInBookmarks) {
+        if (!isAuth) colScheme = "gray";
+        if (isAuth && isInBookmarks) {
           caption = "Delete";
-          classNames += " delete-btn";
+          colScheme = "red";
         }
         const src = `https://live.staticflickr.com/${img.server}/${img.id}_${
           img.secret
@@ -90,8 +89,9 @@ const SearchImages: React.FC = React.memo(() => {
         } as IBookmark;
         return (
           <ImageItem
+            key={item.id}
             item={item}
-            classes={classNames}
+            colScheme={colScheme}
             btnCaption={caption}
             tagsHandler={tags => workWithTags(tags, item.id)}
             toggleBookmark={item => toggleBookmarkHandler(item)}
@@ -100,7 +100,7 @@ const SearchImages: React.FC = React.memo(() => {
       });
       return images;
     },
-    [bookmarks, dispatch, authState.isAuth, workWithTags]
+    [bookmarks, dispatch, isAuth, workWithTags]
   );
 
   let imagesCards = null;
@@ -111,13 +111,13 @@ const SearchImages: React.FC = React.memo(() => {
 
   useEffect(() => {
     if (!isLoading && !error && !srcImages) {
-      if (searchContext.page !== null && searchContext.query) {
+      if (lastSearch.page !== null && lastSearch.query) {
         setSearchState(prev => ({
           ...prev,
-          currentPage: searchContext.page!,
+          currentPage: lastSearch.page!,
           isLoading: true,
         }));
-        setUserInput(searchContext.query);
+        setUserInput(lastSearch.query);
       }
     }
   }, []);
@@ -129,8 +129,7 @@ const SearchImages: React.FC = React.memo(() => {
         inputRef.current.value.length !== 0 &&
         userInput === inputRef.current.value
       )
-        searchContext.query = userInput;
-      searchContext.page = currentPage;
+        setLastSearch(currentPage, userInput);
     }, 1000);
     return () => clearTimeout(timer);
   }, [userInput]);
@@ -152,7 +151,7 @@ const SearchImages: React.FC = React.memo(() => {
   };
 
   const toggleBookmarkHandler = (item: ImageItem) => {
-    if (authState.isAuth) {
+    if (isAuth) {
       item.isInBookmarks
         ? dispatch({ type: "DELETE", bookmark: item })
         : dispatch({ type: "ADD", bookmark: item });
@@ -160,25 +159,31 @@ const SearchImages: React.FC = React.memo(() => {
   };
 
   return (
-    <div className="searchBox">
-      <input
-        type="text"
-        className="searchInput"
-        ref={inputRef}
-        placeholder="Find Images"
-        value={userInput}
-        onChange={event => setUserInput(event.target.value)}
-      />
-      {imagesCards ? (
-        <div className="paginationBox">
-          <Pagination
-            current={currentPage}
-            total={totalPages}
-            paginationClickHandler={paginateOnClick}
-          />
-        </div>
-      ) : null}
-      <div className="resultsBox">
+    <Flex w="100%" ml="64px" p="16px 10px" flexDir="column">
+      <Flex flexDirection="column">
+        <Input
+          variant="outline"
+          w="90%"
+          mt="12px"
+          size="sm"
+          alignSelf="center"
+          ref={inputRef}
+          autoFocus={true}
+          placeholder="Find Images"
+          value={userInput}
+          onChange={event => setUserInput(event.target.value)}
+        />
+        {imagesCards ? (
+          <Flex alignSelf="center">
+            <Pagination
+              current={currentPage}
+              total={totalPages}
+              paginationClickHandler={paginateOnClick}
+            />
+          </Flex>
+        ) : null}
+      </Flex>
+      <Wrap spacing="30px" py="60px" justify="center">
         {error ? (
           <h3>NSomething went wrong... :(</h3>
         ) : isLoading ? (
@@ -188,8 +193,8 @@ const SearchImages: React.FC = React.memo(() => {
         ) : (
           <h3>No images here. Would you try to search for anything else?</h3>
         )}
-      </div>
-    </div>
+      </Wrap>
+    </Flex>
   );
 });
 
