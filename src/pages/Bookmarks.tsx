@@ -1,16 +1,15 @@
 import React from "react";
-import { useBookmarks } from "../../store/bookmarks";
-import ImageItem from "./ImageItem";
+import { useBookmarks } from "../store/bookmarks";
+import ImageItem from "../components/Image/ImageItem";
 import { Flex, Heading } from "@chakra-ui/react";
-// import "./../../styles/Bookmarks.css";
 
 const Bookmarks: React.FC = () => {
   const { dispatch, bookmarks } = useBookmarks();
-  console.log("[Bookmarks] bookmarks:", bookmarks);
   let bokmarkedImages = null;
   if (bookmarks && bookmarks.length) {
     bokmarkedImages = bookmarks.map(item => (
       <ImageItem
+        key={item.id}
         colScheme="red"
         btnCaption="Delete"
         item={item}

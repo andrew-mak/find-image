@@ -5,6 +5,8 @@ type AuthContext = {
 
 interface IUserState {
   isAuth: boolean,
+  authError: string | null,
+  logout: ()=>void,
   auth: (d: AuthData, a: "login" | "register") => void,
   setLastSearch: (p: number, q: string) => void;
   userData: {

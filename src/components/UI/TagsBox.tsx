@@ -5,6 +5,7 @@ import "../../styles/ReactTags.css";
 interface TagsBoxProps {
   tagsHandler: (tags: string[] | null) => void;
   tags: Tag[];
+  restrictions?: boolean;
 }
 
 const KeyCodes = {
@@ -16,9 +17,6 @@ const delimiters = [...KeyCodes.enter, KeyCodes.comma];
 
 const TagsBox: React.FC<TagsBoxProps> = ({ tagsHandler, tags }) => {
   const [tagsState, setTagsState] = useState<Tag[]>(tags);
-
-  console.log("TAGS: ", tags);
-  console.log("tagsState: ", tagsState);
 
   const handleDelete = (i: number) => {
     if (tagsState) {
@@ -36,8 +34,6 @@ const TagsBox: React.FC<TagsBoxProps> = ({ tagsHandler, tags }) => {
       setTagsState([tag]);
       tagsHandler([tag.text]);
     }
-    console.log("TAGS state: ", tagsState);
-    console.log("TAG: ", tag);
   };
 
   const handleDrag = (tag: Tag, currPos: number, newPos: number) => {

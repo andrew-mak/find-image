@@ -1,13 +1,13 @@
 import React, { useContext } from "react";
-import LeftSideBar from "./LeftSideBar";
-import { BookmarksProvider } from "../../store/bookmarks";
 import { Link as ReactLink } from "react-router-dom";
-import { Avatar, Flex, Heading, Link } from "@chakra-ui/react";
+import { BookmarksProvider } from "../../store/bookmarks";
 import { AuthContext } from "../../context/authContext";
 import DropDownMenu from "./DropDownMenu";
+import LeftSideBar from "./LeftSideBar";
+import { Avatar, Flex, Heading, Link } from "@chakra-ui/react";
 
 const Layout: React.FC = props => {
-  const { isAuth, userData } = useContext(AuthContext);
+  const { isAuth, userData, logout } = useContext(AuthContext);
   return (
     <>
       <Flex
@@ -32,7 +32,7 @@ const Layout: React.FC = props => {
             />
             <DropDownMenu
               userName={userData.userName || userData.email || "user"}
-              // logoutHandler={logoutHandler}
+              logoutHandler={logout}
             />
           </Flex>
         ) : (

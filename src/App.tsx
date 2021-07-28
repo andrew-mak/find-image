@@ -1,11 +1,11 @@
-import React, { useContext } from "react";
-import "./App.css";
+import { useContext } from "react";
 import { Route, Switch } from "react-router-dom";
 import { AuthContext } from "./context/authContext";
+import Auth from "./pages/Auth";
+import SearchImages from "./pages/SearchImages";
+import Bookmarks from "./pages/Bookmarks";
 import Layout from "./components/UI/Layout";
-import Auth from "./components/Auth";
-import SearchImages from "./components/Image/SearchImages";
-import Bookmarks from "./components/Image/Bookmarks";
+import "./App.css";
 
 function App() {
   const authContext = useContext(AuthContext);
@@ -14,9 +14,16 @@ function App() {
     <Switch>
       <Route path="/search" component={SearchImages} />
       <Route path="/bookmarks">
-        {authContext.isAuth ? <Bookmarks /> : <Auth action="login" />}
+        {authContext.isAuth ? (
+          <Bookmarks />
+        ) : (
+          <Auth action="login" redirect={"/bookmarks"} />
+        )}
       </Route>
-      <Route path="/login" component={Auth} />
+      <Route
+        path="/login"
+        component={() => <Auth action="login" redirect={"/"} />}
+      />
       <Route path="/" component={SearchImages} />
     </Switch>
   );
@@ -24,7 +31,6 @@ function App() {
   return (
     <div className="App">
       <Layout>{routs}</Layout>
-      {/* <Layout>{authContext.isAuth ? routs : <Auth />}</Layout> */}
     </div>
   );
 }

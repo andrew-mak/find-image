@@ -5,9 +5,13 @@ import { Link as ReactLink } from "react-router-dom";
 
 interface DropDownMenuProps {
   userName: string;
+  logoutHandler: () => void;
 }
 
-const DropDownMenu: React.FC<DropDownMenuProps> = ({ userName }) => {
+const DropDownMenu: React.FC<DropDownMenuProps> = ({
+  userName,
+  logoutHandler,
+}) => {
   return (
     <Menu>
       <MenuButton
@@ -19,12 +23,9 @@ const DropDownMenu: React.FC<DropDownMenuProps> = ({ userName }) => {
         p="0"
         height="auto"
         bg="transparent"
-        // borderRadius="5px"
-        // radius
         _hover={{ bg: "transparent" }}
         _active={{ outline: "none", bg: "transparent" }}
         _focus={{ outline: "none" }}
-        // _focusVisible={{ boxShadow: "0px 0px 0px 1px white" }}
       >
         {userName} <FaChevronDown fontSize="0.5rem" />
       </MenuButton>
@@ -38,11 +39,7 @@ const DropDownMenu: React.FC<DropDownMenuProps> = ({ userName }) => {
           <MenuItem>Bookmarks</MenuItem>
         </Link>
 
-        <MenuItem
-        // onClick={logoutHandler}
-        >
-          Logout
-        </MenuItem>
+        <MenuItem onClick={logoutHandler}>Logout</MenuItem>
       </MenuList>
     </Menu>
   );

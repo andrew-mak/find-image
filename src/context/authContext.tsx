@@ -1,8 +1,11 @@
 import React, { createContext, useState } from "react";
+import { mapErrorMessages } from "../util/mapErrorMessages";
 
 const initUserState: IUserState = {
   isAuth: Boolean(localStorage.getItem("token")),
   auth: () => {},
+  logout: () => {},
+  authError: null,
   setLastSearch: () => {},
   userData: {
     userName: localStorage.getItem("userName") || null,
@@ -19,12 +22,12 @@ export const AuthContext = createContext<IUserState>(initUserState);
 
 const AuthContextProvider: React.FC = ({ children }) => {
   const [isAuth, setIsAuthenticated] = useState<boolean>(initUserState.isAuth);
+  const [authError, setAuthError] = useState(initUserState.authError);
   const [userData, setUserData] = useState(initUserState.userData);
   const [search, setSearch] = useState(initUserState.lastSearch);
 
   const auth = (authData: AuthData, action: "login" | "register") => {
-    console.log("action: ", action);
-    let data = JSON.stringify(authData);
+    setAuthError(null);
     let url =
       "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCVhAIbllGCjsLt-6w0tkaquGOFR6dNrIA";
     if (action === "register") {
@@ -36,31 +39,40 @@ const AuthContextProvider: React.FC = ({ children }) => {
       headers: {
         "Content-Type": "application/json;charset=utf-8",
       },
-      body: data,
+      body: JSON.stringify(authData),
     })
       .then(response => response.json())
       .then(result => {
-        console.log(result);
-        const expirationDate = new Date(
-          new Date().getTime() + result.expiresIn * 1000
-        );
-        localStorage.setItem("token", result.idToken);
-        localStorage.setItem("expirationDate", expirationDate.toString());
-        localStorage.setItem("userId", result.localId);
-        localStorage.setItem("email", result.email);
-        localStorage.setItem("userName", result.displayName);
-
-        setIsAuthenticated(true);
-        setUserData({
-          userName: result.displayName,
-          email: result.email,
-          token: result.token,
-        });
+        if (result.error) {
+          let message = mapErrorMessages(result.error.message);
+          setAuthError(message);
+        }
+        if (result.idToken) {
+          setIsAuthenticated(true);
+          localStorage.setItem("token", result.idToken);
+          localStorage.setItem("userId", result.localId);
+          localStorage.setItem("email", result.email);
+          localStorage.setItem("userName", result.displayName);
+          setUserData({
+            userName: result.displayName,
+            email: result.email,
+            token: result.token,
+          });
+        }
       })
       .catch(error => {
         console.log("Error: ", error);
-        // dispatch(authFail(error.response.data.error));
       });
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("email");
+    setUserData({ ...initUserState.userData });
+    setSearch({ ...initUserState.lastSearch });
   };
 
   const setLastSearch = (page: number, query: string) => {
@@ -71,6 +83,8 @@ const AuthContextProvider: React.FC = ({ children }) => {
     <AuthContext.Provider
       value={{
         isAuth,
+        authError,
+        logout,
         auth,
         setLastSearch,
         userData: {

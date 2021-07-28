@@ -1,14 +1,13 @@
 import React from "react";
 import { Flex, Heading } from "@chakra-ui/react";
+import AuthForm from "../components/AuthForm";
 
-type AuthFormContainerProps = {
+type AuthProp = {
   action: "login" | "register";
+  redirect: string;
 };
 
-const AuthFormContainer: React.FC<AuthFormContainerProps> = ({
-  children,
-  action,
-}) => {
+const Auth: React.FC<AuthProp> = ({ action, redirect }) => {
   return (
     <Flex w="100%" pl="64px">
       <Flex
@@ -32,25 +31,28 @@ const AuthFormContainer: React.FC<AuthFormContainerProps> = ({
           ml="auto"
           px="64px"
         >
-          {action ? (
-            <Heading
-              color="white"
-              fontWeight="normal"
-              size="lg"
-              alignSelf="center"
-              m="auto"
-              textTransform="capitalize"
-            >
-              {action}
-            </Heading>
-          ) : null}
+          <Heading
+            color="white"
+            fontWeight="normal"
+            size="lg"
+            alignSelf="center"
+            m="auto"
+            textTransform="capitalize"
+          >
+            Join to FindImager
+          </Heading>
         </Flex>
         <Flex px={["32px", "20%"]} w="100%" flexDirection="column">
-          {children}
+          <AuthForm
+            action="login"
+            redirect={redirect}
+            type="page"
+            showWarning={true}
+          />
         </Flex>
       </Flex>
     </Flex>
   );
 };
 
-export default AuthFormContainer;
+export default Auth;
