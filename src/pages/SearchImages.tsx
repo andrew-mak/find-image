@@ -36,14 +36,29 @@ const SearchImages: React.FC = React.memo(() => {
     totalPages: 1,
     srcImages: null as null | ImageItem[],
     isLoading: false as boolean,
-    error: null as null | Error,
+    error: null as null | string,
   });
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { bookmarks, dispatch } = useContext(Bookmarks);
 
-  const fethcData = async () => {
+  const handleError = useCallback((message: string) => {
+    setSearchState({
+      srcImages: null,
+      isLoading: false,
+      currentPage: 1,
+      totalPages: 1,
+      error: message,
+    });
+  }, []);
+
+  const fethcData = useCallback(async () => {
+    setSearchState(prev => ({
+      ...prev,
+      isLoading: true,
+      error: null,
+    }));
     let data = await fetch(
       `https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=189f9704c734c2efe2932a78628553c7&text=${userInput}&per_page=10&page=${currentPage}&format=json&nojsoncallback=1`,
       { method: "GET" }
@@ -52,13 +67,7 @@ const SearchImages: React.FC = React.memo(() => {
       .then(responseData => responseData)
       .catch(error => {
         console.log(error);
-        setSearchState({
-          srcImages: null,
-          isLoading: false,
-          currentPage: 1,
-          totalPages: 1,
-          error: error.message,
-        });
+        handleError(error.message);
       });
 
     if (data && data.stat === "ok") {
@@ -70,17 +79,33 @@ const SearchImages: React.FC = React.memo(() => {
         error: null,
       });
       setLastSearch(data.photos.page, userInput);
+    } else {
+      console.error("Something go wrong. Responce data: ", data);
+      handleError("Something go wrong");
     }
-  };
+  }, [currentPage, userInput, setLastSearch, handleError]);
 
-  const workWithTags = useCallback(
+  const toggleBookmarkHandler = useCallback(
+    (item: ImageItem) => {
+      if (isAuth) {
+        item.isInBookmarks
+          ? dispatch({ type: "DELETE", bookmark: item })
+          : dispatch({ type: "ADD", bookmark: item });
+      } else {
+        onOpen();
+      }
+    },
+    [isAuth, dispatch, onOpen]
+  );
+
+  const handleTagsActions = useCallback(
     (tags: string[] | null, id: string) => {
       dispatch({ type: "EDIT_TAGS", tags, id });
     },
     [dispatch]
   );
 
-  const makeImages = useCallback(
+  const makeImageCard = useCallback(
     (srcArr: ImageItem[]) => {
       const images = srcArr.map(img => {
         let isInBookmarks = false;
@@ -112,21 +137,23 @@ const SearchImages: React.FC = React.memo(() => {
             colScheme={colScheme}
             restrictions={!isAuth}
             btnCaption={caption}
-            tagsHandler={tags => workWithTags(tags, item.id)}
+            tagsHandler={tags => handleTagsActions(tags, item.id)}
             toggleBookmark={item => toggleBookmarkHandler(item)}
           />
         );
       });
       return images;
     },
-    [bookmarks, isAuth, workWithTags]
+    [bookmarks, isAuth, handleTagsActions, toggleBookmarkHandler]
   );
 
   let imagesCards = null;
-  if (srcImages && srcImages.length !== 0) imagesCards = makeImages(srcImages);
+  if (srcImages && srcImages.length !== 0)
+    imagesCards = makeImageCard(srcImages);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
+    // case: when search input became empty
     if (userInput.trim().length === 0) {
       setSearchState({
         srcImages: null,
@@ -137,26 +164,31 @@ const SearchImages: React.FC = React.memo(() => {
       });
       setLastSearch(1, "");
     }
-    if (userInput.trim().length > 0 && currentPage !== lastSearch.page) {
+    // case: when user make paginate step
+    else if (userInput.trim().length > 0 && currentPage !== lastSearch.page) {
       fethcData();
     }
-    if (userInput.trim().length > 0) {
+    // case: when search query changed by user
+    else if (userInput.trim().length > 0 && userInput !== lastSearch.query) {
       timer = setTimeout(() => {
         if (userInput.trim().length > 0) {
           fethcData();
-          setSearchState(prev => ({
-            ...prev,
-            isLoading: true,
-            error: null,
-          }));
         }
       }, 1200);
     }
     return () => clearTimeout(timer);
-  }, [userInput, currentPage]);
+  }, [
+    userInput,
+    currentPage,
+    lastSearch.page,
+    lastSearch.query,
+    fethcData,
+    setLastSearch,
+  ]);
 
   useEffect(() => {
     if (!isLoading && !error && !srcImages) {
+      // case: on component first mount try to set last users query
       if (lastSearch.page !== null && lastSearch.query) {
         setSearchState(prev => ({
           ...prev,
@@ -164,9 +196,17 @@ const SearchImages: React.FC = React.memo(() => {
           isLoading: true,
         }));
         setUserInput(lastSearch.query);
+        fethcData();
       }
     }
-  }, []);
+  }, [
+    error,
+    isLoading,
+    lastSearch.page,
+    lastSearch.query,
+    srcImages,
+    fethcData,
+  ]);
 
   const paginateOnClick = (event: React.MouseEvent<HTMLElement>) => {
     const target = event.target as HTMLElement;
@@ -180,16 +220,6 @@ const SearchImages: React.FC = React.memo(() => {
       ...prev,
       currentPage: prev.currentPage + move,
     }));
-  };
-
-  const toggleBookmarkHandler = (item: ImageItem) => {
-    if (isAuth) {
-      item.isInBookmarks
-        ? dispatch({ type: "DELETE", bookmark: item })
-        : dispatch({ type: "ADD", bookmark: item });
-    } else {
-      onOpen();
-    }
   };
 
   return (

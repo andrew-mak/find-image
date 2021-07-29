@@ -44,7 +44,7 @@ const AuthForm: React.FC<IAuthFormProps> = ({
   useEffect(() => {
     if (isAuth && type === "modal" && onCloseModal) onCloseModal();
     if (isAuth) push(redirect ? redirect : "/");
-  }, [isAuth, push]);
+  }, [isAuth, type, redirect, push, onCloseModal,]);
 
   useEffect(() => {
     if (authError) {
