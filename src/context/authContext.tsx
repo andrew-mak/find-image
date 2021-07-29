@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useCallback } from "react";
 import { mapErrorMessages } from "../util/mapErrorMessages";
 
 const initUserState: IUserState = {
@@ -75,9 +75,9 @@ const AuthContextProvider: React.FC = ({ children }) => {
     setSearch({ ...initUserState.lastSearch });
   };
 
-  const setLastSearch = (page: number, query: string) => {
+  const setLastSearch = useCallback((page: number, query: string) => {
     setSearch({ page, query });
-  };
+  }, []);
 
   return (
     <AuthContext.Provider
