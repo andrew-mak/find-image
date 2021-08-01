@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Flex, Avatar, Button, useMediaQuery, Link } from "@chakra-ui/react";
-import DropDownMenu from "./DropDownMenu";
-import { AuthContext } from "../../context/authContext";
+import { AppUserContext } from "../../context/userContext";
+import DropDownMenu from "../Layout/DropDownMenu";
 
 interface TopNavBarProps {
   username: string | null;
@@ -10,7 +10,7 @@ interface TopNavBarProps {
 }
 
 const TopNavBar: React.FC<TopNavBarProps> = ({ username, sideDrawerOpen }) => {
-  const { isAuth, logout } = useContext(AuthContext);
+  const { isAuth, logout } = useContext(AppUserContext).auth;
   const [isLargerThan480] = useMediaQuery("(min-width: 480px)");
 
   const mobileBtn = (

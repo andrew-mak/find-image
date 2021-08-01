@@ -5,11 +5,6 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import { AuthContext } from "../context/authContext";
-import { Bookmarks } from "../store/bookmarks";
-import Pagination from "../components/UI/Pagination";
-import ImageItem from "../components/Image/ImageItem";
-import LoginModal from "../components/Modal/LoginModal";
 import {
   Button,
   Flex,
@@ -22,9 +17,16 @@ import {
   Wrap,
 } from "@chakra-ui/react";
 import { ImCross } from "react-icons/im";
+import { AppUserContext } from "../context/userContext";
+import { Bookmarks } from "../store/bookmarks";
+import Pagination from "../components/UI/Pagination";
+import ImageItem from "../components/Image/ImageItem";
+import LoginModal from "../components/Layout/LoginModalContainer";
 
 const SearchImages: React.FC = React.memo(() => {
-  const { isAuth, lastSearch, setLastSearch } = useContext(AuthContext);
+  const { auth, lastSearch } = useContext(AppUserContext)
+  const { isAuth } = auth;
+  const { setLastSearch } = lastSearch;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
@@ -263,7 +265,7 @@ const SearchImages: React.FC = React.memo(() => {
         width="100%"
         maxW="1280px"
         flexDirection="column"
-        alignSelf="center"
+        alignSelf="flex-start"
         mb="4px"
         py="8px"
       >

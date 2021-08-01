@@ -1,14 +1,15 @@
-type AuthContext = {
+type AppUserContext = {
   isAuth: boolean,
   login: () => void,
 }
 
 interface IUserState {
-  isAuth: boolean,
-  authError: string | null,
-  logout: ()=>void,
-  auth: (d: AuthData, a: "login" | "register") => void,
-  setLastSearch: (p: number, q: string, pp: number) => void;
+  auth: {
+    isAuth: boolean,
+    authError: string | null,
+    logout: () => void,
+    authenticate: (d: AuthData, a: "login" | "register") => void,
+  }
   userData: {
     userName: null | string,
     email: null | string,
@@ -18,6 +19,7 @@ interface IUserState {
     query: null | string,
     page: null | number,
     perPage: number,
+    setLastSearch: (p: number, q: string, pp: number) => void;
   },
 }
 

@@ -1,20 +1,20 @@
 import { useContext } from "react";
 import { Route, Switch } from "react-router-dom";
-import { AuthContext } from "./context/authContext";
+import { AppUserContext } from "./context/userContext";
 import Auth from "./pages/Auth";
 import SearchImages from "./pages/SearchImages";
 import Bookmarks from "./pages/Bookmarks";
-import Layout from "./components/UI/Layout";
+import Layout from "./components/Layout/Layout";
 import "./App.css";
 
 function App() {
-  const authContext = useContext(AuthContext);
+  const authContext = useContext(AppUserContext);
 
   const routs = (
     <Switch>
       <Route path="/search" component={SearchImages} />
       <Route path="/bookmarks">
-        {authContext.isAuth ? (
+        {authContext.auth.isAuth ? (
           <Bookmarks />
         ) : (
           <Auth action="login" redirect={"/bookmarks"} />

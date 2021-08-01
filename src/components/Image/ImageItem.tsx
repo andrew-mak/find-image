@@ -1,8 +1,8 @@
 import React from "react";
+import { Center, Flex, Text, Tooltip, WrapItem } from "@chakra-ui/react";
 import { Tag } from "react-tag-input";
 import BasicButton from "../UI/BasicButton";
 import TagsBox from "../UI/TagsBox";
-import { Center, Flex, Text, Tooltip, WrapItem } from "@chakra-ui/react";
 
 interface IImageItemProps {
   item: IBookmark;

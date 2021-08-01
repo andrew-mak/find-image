@@ -1,7 +1,7 @@
 import React from "react";
+import { Flex, Heading, useToast } from "@chakra-ui/react";
 import { useBookmarks } from "../store/bookmarks";
 import ImageItem from "../components/Image/ImageItem";
-import { Flex, Heading, useToast } from "@chakra-ui/react";
 
 const Bookmarks: React.FC = () => {
   const { dispatch, bookmarks } = useBookmarks();

@@ -1,5 +1,4 @@
 import { useContext } from "react";
-import LeftSideBar from "./LeftSideBar";
 import { Link as RouterLink } from "react-router-dom";
 import {
   Flex,
@@ -8,13 +7,16 @@ import {
   useDisclosure,
   useMediaQuery,
 } from "@chakra-ui/react";
-import SideDrawer from "./SideDrawer";
-import TopNavBar from "./TopNavBar";
 import { BookmarksProvider } from "../../store/bookmarks";
-import { AuthContext } from "../../context/authContext";
+import { AppUserContext } from "../../context/userContext";
+import SessionTimeout from "../SessionTimeout";
+import SideMenu from "./SideMenu";
+import LeftSideBar from "../UI/LeftSideBar";
+import TopNavBar from "../UI/TopNavBar";
 
 const Layout: React.FC = props => {
-  const { userData, logout } = useContext(AuthContext);
+  const { userData, auth } = useContext(AppUserContext);
+  const { logout } = auth;
   const [isLargerThan480] = useMediaQuery("(min-width: 480px)");
 
   const userName = userData.userName || userData.email || null;
@@ -64,7 +66,7 @@ const Layout: React.FC = props => {
         {isLargerThan480 ? (
           <LeftSideBar />
         ) : sideDrawerIsOpen ? (
-          <SideDrawer
+          <SideMenu
             username={userName}
             isOpen={sideDrawerIsOpen}
             onClose={sideDrawerClose}
@@ -77,7 +79,10 @@ const Layout: React.FC = props => {
           flexDir="column"
           overflow="hidden"
         >
-          <BookmarksProvider>{props.children}</BookmarksProvider>
+          <BookmarksProvider>
+            <SessionTimeout />
+            {props.children}
+          </BookmarksProvider>
         </Flex>
       </Flex>
       <Flex

@@ -2,33 +2,34 @@ import React, { createContext, useState, useCallback } from "react";
 import { mapErrorMessages } from "../util/mapErrorMessages";
 
 const initUserState: IUserState = {
-  isAuth: Boolean(localStorage.getItem("token")),
-  auth: () => {},
-  logout: () => {},
-  authError: null,
-  setLastSearch: () => {},
+  auth: {
+    isAuth: Boolean(sessionStorage.getItem("token")),
+    authenticate: () => {},
+    logout: () => {},
+    authError: null,
+  },
   userData: {
-    userName: localStorage.getItem("userName") || null,
-    token: localStorage.getItem("token") || null,
-    email: localStorage.getItem("email") || null,
+    userName: sessionStorage.getItem("userName") || null,
+    token: sessionStorage.getItem("token") || null,
+    email: sessionStorage.getItem("email") || null,
   },
   lastSearch: {
     query: null,
     page: null,
     perPage: 10,
+    setLastSearch: () => {},
   },
 };
 
-export const AuthContext = createContext<IUserState>(initUserState);
+export const AppUserContext = createContext<IUserState>(initUserState);
 
-const AuthContextProvider: React.FC = ({ children }) => {
-  const [isAuth, setIsAuthenticated] = useState<boolean>(initUserState.isAuth);
-  const [authError, setAuthError] = useState(initUserState.authError);
+const AppUserContextProvider: React.FC = ({ children }) => {
+  const [auth, setAuth] = useState(initUserState.auth);
   const [userData, setUserData] = useState(initUserState.userData);
   const [search, setSearch] = useState(initUserState.lastSearch);
 
-  const auth = (authData: AuthData, action: "login" | "register") => {
-    setAuthError(null);
+  const authenticate = (authData: AuthData, action: "login" | "register") => {
+    setAuth(prev => ({ ...prev, authError: null }));
     const key = process.env.REACT_APP_FIREBASE_APP_KEY;
     let url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${key}`;
     if (action === "register") {
@@ -45,14 +46,14 @@ const AuthContextProvider: React.FC = ({ children }) => {
       .then(result => {
         if (result.error) {
           let message = mapErrorMessages(result.error.message);
-          setAuthError(message);
+          setAuth(prev => ({ ...prev, authError: message }));
         }
         if (result.idToken) {
-          setIsAuthenticated(true);
-          localStorage.setItem("token", result.idToken);
-          localStorage.setItem("userId", result.localId);
-          localStorage.setItem("email", result.email);
-          localStorage.setItem("userName", result.displayName);
+          setAuth(prev => ({ ...prev, isAuth: true }));
+          sessionStorage.setItem("token", result.idToken);
+          sessionStorage.setItem("userId", result.localId);
+          sessionStorage.setItem("email", result.email);
+          sessionStorage.setItem("userName", result.displayName);
           setUserData({
             userName: result.displayName,
             email: result.email,
@@ -66,41 +67,42 @@ const AuthContextProvider: React.FC = ({ children }) => {
   };
 
   const logout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("email");
+    setAuth(prev => ({ ...prev, isAuth: false }));
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userId");
+    sessionStorage.removeItem("userName");
+    sessionStorage.removeItem("email");
     setUserData({ ...initUserState.userData });
     setSearch({ ...initUserState.lastSearch });
   };
 
   const setLastSearch = useCallback(
     (page: number, query: string, perPage: number) => {
-      setSearch({ page, query, perPage });
+      setSearch(prev => ({ ...prev, page, query, perPage }));
     },
     []
   );
 
   return (
-    <AuthContext.Provider
+    <AppUserContext.Provider
       value={{
-        isAuth,
-        authError,
-        logout,
-        auth,
-        setLastSearch,
+        auth: {
+          ...auth,
+          logout,
+          authenticate,
+        },
         userData: {
           ...userData,
         },
         lastSearch: {
           ...search,
+          setLastSearch,
         },
       }}
     >
       {children}
-    </AuthContext.Provider>
+    </AppUserContext.Provider>
   );
 };
 
-export default AuthContextProvider;
+export default AppUserContextProvider;
