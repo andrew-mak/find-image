@@ -1,11 +1,11 @@
 import React from "react";
+import Auth from "../AuthForm";
 import {
   Modal,
   ModalCloseButton,
   ModalContent,
   ModalOverlay,
 } from "@chakra-ui/react";
-import Auth from "../AuthForm";
 
 interface LoginModalProps {
   isOpen: boolean;

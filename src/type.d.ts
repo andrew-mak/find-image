@@ -8,7 +8,7 @@ interface IUserState {
   authError: string | null,
   logout: ()=>void,
   auth: (d: AuthData, a: "login" | "register") => void,
-  setLastSearch: (p: number, q: string) => void;
+  setLastSearch: (p: number, q: string, pp: number) => void;
   userData: {
     userName: null | string,
     email: null | string,
@@ -17,6 +17,7 @@ interface IUserState {
   lastSearch: {
     query: null | string,
     page: null | number,
+    perPage: number,
   },
 }
 

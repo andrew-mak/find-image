@@ -4,7 +4,7 @@ import { FaChevronDown } from "react-icons/fa";
 import { Link as ReactLink } from "react-router-dom";
 
 interface DropDownMenuProps {
-  userName: string;
+  userName: string | null;
   logoutHandler: () => void;
 }
 
@@ -19,7 +19,6 @@ const DropDownMenu: React.FC<DropDownMenuProps> = ({
         color="white"
         fontSize="md"
         fontWeight="medium"
-        m="auto"
         p="0"
         height="auto"
         bg="transparent"
@@ -27,7 +26,10 @@ const DropDownMenu: React.FC<DropDownMenuProps> = ({
         _active={{ outline: "none", bg: "transparent" }}
         _focus={{ outline: "none" }}
       >
-        {userName} <FaChevronDown fontSize="0.5rem" />
+        {userName || "user"}{" "}
+        <FaChevronDown
+          style={{ display: "inline-block", fontSize: "0.75rem" }}
+        />
       </MenuButton>
       <MenuList color="black">
         <MenuItem>My Profile</MenuItem>

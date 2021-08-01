@@ -15,6 +15,7 @@ const initUserState: IUserState = {
   lastSearch: {
     query: null,
     page: null,
+    perPage: 10,
   },
 };
 
@@ -28,11 +29,10 @@ const AuthContextProvider: React.FC = ({ children }) => {
 
   const auth = (authData: AuthData, action: "login" | "register") => {
     setAuthError(null);
-    let url =
-      "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCVhAIbllGCjsLt-6w0tkaquGOFR6dNrIA";
+    const key = process.env.REACT_APP_FIREBASE_APP_KEY;
+    let url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${key}`;
     if (action === "register") {
-      url =
-        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCVhAIbllGCjsLt-6w0tkaquGOFR6dNrIA";
+      url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${key}`;
     }
     fetch(url, {
       method: "POST",
@@ -61,7 +61,7 @@ const AuthContextProvider: React.FC = ({ children }) => {
         }
       })
       .catch(error => {
-        console.log("Error: ", error);
+        console.error("Error: ", error);
       });
   };
 
@@ -75,9 +75,12 @@ const AuthContextProvider: React.FC = ({ children }) => {
     setSearch({ ...initUserState.lastSearch });
   };
 
-  const setLastSearch = useCallback((page: number, query: string) => {
-    setSearch({ page, query });
-  }, []);
+  const setLastSearch = useCallback(
+    (page: number, query: string, perPage: number) => {
+      setSearch({ page, query, perPage });
+    },
+    []
+  );
 
   return (
     <AuthContext.Provider

@@ -1,13 +1,35 @@
-import React, { useContext } from "react";
-import { Link as ReactLink } from "react-router-dom";
+import { useContext } from "react";
+import LeftSideBar from "./LeftSideBar";
+import { Link as RouterLink } from "react-router-dom";
+import {
+  Flex,
+  Heading,
+  Link,
+  useDisclosure,
+  useMediaQuery,
+} from "@chakra-ui/react";
+import SideDrawer from "./SideDrawer";
+import TopNavBar from "./TopNavBar";
 import { BookmarksProvider } from "../../store/bookmarks";
 import { AuthContext } from "../../context/authContext";
-import DropDownMenu from "./DropDownMenu";
-import LeftSideBar from "./LeftSideBar";
-import { Avatar, Flex, Heading, Link } from "@chakra-ui/react";
 
 const Layout: React.FC = props => {
-  const { isAuth, userData, logout } = useContext(AuthContext);
+  const { userData, logout } = useContext(AuthContext);
+  const [isLargerThan480] = useMediaQuery("(min-width: 480px)");
+
+  const userName = userData.userName || userData.email || null;
+
+  const {
+    isOpen: sideDrawerIsOpen,
+    onOpen: sideDrawerOpen,
+    onClose: sideDrawerClose,
+  } = useDisclosure();
+
+  const logoutHandler = () => {
+    logout();
+    sideDrawerClose();
+  };
+
   return (
     <>
       <Flex
@@ -18,39 +40,45 @@ const Layout: React.FC = props => {
         color="white"
         alignItems="center"
       >
-        <Heading ml="20px" fontSize="1.5rem" fontWeight="600">
-          Image Finder
-        </Heading>
-        {isAuth ? (
-          <Flex as="nav" ml="auto" mr="40px">
-            <Avatar
-              bg="gray.400"
-              mx="13px"
-              my="auto"
-              size="sm"
-              loading="lazy"
-            />
-            <DropDownMenu
-              userName={userData.userName || userData.email || "user"}
-              logoutHandler={logout}
-            />
-          </Flex>
-        ) : (
+        <Flex
+          maxWidth="1280px"
+          width="100%"
+          ml={["4px", "16px", "76px"]}
+          alignItems="center"
+        >
           <Link
-            ml="auto"
-            mr="40px"
-            fontSize="1rem"
+            as={RouterLink}
+            to="/"
             _hover={{ textDecoration: "none" }}
-            as={ReactLink}
-            to="/login"
+            _focus={{ outline: "none" }}
+            _focusVisible={{ boxShadow: "inset 0px 0px 0px 1px white" }}
           >
-            Login
+            <Heading fontSize="1.5rem" fontWeight="600">
+              Image Finder
+            </Heading>
           </Link>
-        )}
+          <TopNavBar sideDrawerOpen={sideDrawerOpen} username={userName} />
+        </Flex>
       </Flex>
       <Flex as="main" w="100%" h="100%" overflowY="auto" overflowX="hidden">
-        <LeftSideBar />
-        <BookmarksProvider>{props.children}</BookmarksProvider>
+        {isLargerThan480 ? (
+          <LeftSideBar />
+        ) : sideDrawerIsOpen ? (
+          <SideDrawer
+            username={userName}
+            isOpen={sideDrawerIsOpen}
+            onClose={sideDrawerClose}
+            logoutHandler={logoutHandler}
+          />
+        ) : null}
+        <Flex
+          w="100%"
+          ml={isLargerThan480 ? "64px" : "6px"}
+          flexDir="column"
+          overflow="hidden"
+        >
+          <BookmarksProvider>{props.children}</BookmarksProvider>
+        </Flex>
       </Flex>
       <Flex
         as="footer"

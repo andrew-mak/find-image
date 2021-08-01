@@ -1,6 +1,6 @@
 import React from "react";
-import { Flex, Heading } from "@chakra-ui/react";
 import AuthForm from "../components/AuthForm";
+import { Flex, Heading } from "@chakra-ui/react";
 
 type AuthProp = {
   action: "login" | "register";
@@ -9,7 +9,7 @@ type AuthProp = {
 
 const Auth: React.FC<AuthProp> = ({ action, redirect }) => {
   return (
-    <Flex w="100%" pl="64px">
+    <Flex w="100%">
       <Flex
         w={["100%", "85%", "60%", "45%"]}
         height="fit-content"
