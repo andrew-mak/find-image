@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import { BrowserRouter } from "react-router-dom";
-import AuthContextProvider from "./context/authContext";
+import AuthContextProvider from "./context/userContext";
 import reportWebVitals from "./reportWebVitals";
 import { ChakraProvider } from "@chakra-ui/react";
 import Auth0ProviderWithHistory from "./auth/auth0-provider-with-history";

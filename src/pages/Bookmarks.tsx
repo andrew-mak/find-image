@@ -1,10 +1,11 @@
 import React from "react";
+import { Flex, Heading, useToast } from "@chakra-ui/react";
 import { useBookmarks } from "../store/bookmarks";
 import ImageItem from "../components/Image/ImageItem";
-import { Flex, Heading } from "@chakra-ui/react";
 
 const Bookmarks: React.FC = () => {
   const { dispatch, bookmarks } = useBookmarks();
+  const toast = useToast();
   let bokmarkedImages = null;
   if (bookmarks && bookmarks.length) {
     bokmarkedImages = bookmarks.map(item => (
@@ -16,12 +17,22 @@ const Bookmarks: React.FC = () => {
         tagsHandler={tags => {
           dispatch({ type: "EDIT_TAGS", tags, id: item.id });
         }}
-        toggleBookmark={() => dispatch({ type: "DELETE", bookmark: item })}
+        toggleBookmark={() => {
+          dispatch({ type: "DELETE", bookmark: item });
+          toast({
+            title: `Deleted from bookmarks`,
+            variant: "subtle",
+            status: "info",
+            isClosable: true,
+            duration: 2000,
+            position: "bottom-right",
+          });
+        }}
       />
     ));
   }
   return (
-    <Flex flexWrap="wrap" ml="64px" justifyContent="center">
+    <Flex overflow="auto" flexDir="column">
       <Heading as="h2" w="100%" size="lg" mt="40px">
         Bookmarks
       </Heading>

@@ -5,11 +5,6 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import { AuthContext } from "../context/authContext";
-import { Bookmarks } from "../store/bookmarks";
-import Pagination from "../components/UI/Pagination";
-import ImageItem from "../components/Image/ImageItem";
-import LoginModal from "../components/Modal/LoginModal";
 import {
   Button,
   Flex,
@@ -18,22 +13,31 @@ import {
   Spinner,
   Text,
   useDisclosure,
+  useToast,
   Wrap,
 } from "@chakra-ui/react";
 import { ImCross } from "react-icons/im";
+import { AppUserContext } from "../context/userContext";
+import { Bookmarks } from "../store/bookmarks";
+import Pagination from "../components/UI/Pagination";
+import ImageItem from "../components/Image/ImageItem";
+import LoginModal from "../components/Layout/LoginModalContainer";
 
 const SearchImages: React.FC = React.memo(() => {
-  const { isAuth, lastSearch, setLastSearch } = useContext(AuthContext);
-
+  const { auth, lastSearch } = useContext(AppUserContext)
+  const { isAuth } = auth;
+  const { setLastSearch } = lastSearch;
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
 
   const [userInput, setUserInput] = useState(lastSearch.query || "");
   const [
-    { currentPage, totalPages, srcImages, isLoading, error },
+    { currentPage, perPage, totalPages, srcImages, isLoading, error },
     setSearchState,
   ] = useState({
     currentPage: lastSearch.page || 1,
     totalPages: 1,
+    perPage: 10,
     srcImages: null as null | ImageItem[],
     isLoading: false as boolean,
     error: null as null | string,
@@ -49,6 +53,7 @@ const SearchImages: React.FC = React.memo(() => {
       isLoading: false,
       currentPage: 1,
       totalPages: 1,
+      perPage: 10,
       error: message,
     });
   }, []);
@@ -60,13 +65,13 @@ const SearchImages: React.FC = React.memo(() => {
       error: null,
     }));
     let data = await fetch(
-      `https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=189f9704c734c2efe2932a78628553c7&text=${userInput}&per_page=10&page=${currentPage}&format=json&nojsoncallback=1`,
+      `https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=189f9704c734c2efe2932a78628553c7&text=${userInput}&per_page=${perPage}&page=${currentPage}&format=json&nojsoncallback=1`,
       { method: "GET" }
     )
       .then(response => response.json())
       .then(responseData => responseData)
       .catch(error => {
-        console.log(error);
+        console.error(error);
         handleError(error.message);
       });
 
@@ -75,27 +80,46 @@ const SearchImages: React.FC = React.memo(() => {
         srcImages: data.photos.photo.length === 0 ? null : data.photos.photo,
         currentPage: data.photos.page,
         totalPages: data.photos.pages,
+        perPage: data.photos.perpage,
         isLoading: false,
         error: null,
       });
-      setLastSearch(data.photos.page, userInput);
+      setLastSearch(data.photos.page, userInput, data.photos.perpage);
     } else {
       console.error("Something go wrong. Responce data: ", data);
       handleError("Something go wrong");
     }
-  }, [currentPage, userInput, setLastSearch, handleError]);
+  }, [currentPage, userInput, perPage, setLastSearch, handleError]);
 
   const toggleBookmarkHandler = useCallback(
     (item: ImageItem) => {
       if (isAuth) {
-        item.isInBookmarks
-          ? dispatch({ type: "DELETE", bookmark: item })
-          : dispatch({ type: "ADD", bookmark: item });
+        if (item.isInBookmarks) {
+          dispatch({ type: "DELETE", bookmark: item });
+          toast({
+            title: `Deleted from bookmarks`,
+            variant: "subtle",
+            status: "info",
+            isClosable: true,
+            duration: 2000,
+            position: "bottom-right",
+          });
+        } else {
+          dispatch({ type: "ADD", bookmark: item });
+          toast({
+            title: `Added in bookmarks`,
+            variant: "subtle",
+            status: "success",
+            isClosable: true,
+            duration: 2000,
+            position: "bottom-right",
+          });
+        }
       } else {
         onOpen();
       }
     },
-    [isAuth, dispatch, onOpen]
+    [isAuth, toast, dispatch, onOpen]
   );
 
   const handleTagsActions = useCallback(
@@ -104,6 +128,13 @@ const SearchImages: React.FC = React.memo(() => {
     },
     [dispatch]
   );
+
+  const perpageHandler = (value: string) => {
+    setSearchState(prev => ({
+      ...prev,
+      perPage: parseInt(value),
+    }));
+  };
 
   const makeImageCard = useCallback(
     (srcArr: ImageItem[]) => {
@@ -155,17 +186,21 @@ const SearchImages: React.FC = React.memo(() => {
     let timer: NodeJS.Timeout;
     // case: when search input became empty
     if (userInput.trim().length === 0) {
-      setSearchState({
+      setSearchState(prev => ({
+        ...prev,
         srcImages: null,
         isLoading: false,
         currentPage: 1,
         totalPages: 1,
         error: null,
-      });
-      setLastSearch(1, "");
+      }));
+      setLastSearch(1, "", 10);
     }
-    // case: when user make paginate step
-    else if (userInput.trim().length > 0 && currentPage !== lastSearch.page) {
+    // case: when user make paginate step or change perpage prop
+    else if (
+      userInput.trim().length > 0 &&
+      (currentPage !== lastSearch.page || perPage !== lastSearch.perPage)
+    ) {
       fethcData();
     }
     // case: when search query changed by user
@@ -180,7 +215,9 @@ const SearchImages: React.FC = React.memo(() => {
   }, [
     userInput,
     currentPage,
+    perPage,
     lastSearch.page,
+    lastSearch.perPage,
     lastSearch.query,
     fethcData,
     setLastSearch,
@@ -223,11 +260,20 @@ const SearchImages: React.FC = React.memo(() => {
   };
 
   return (
-    <Flex w="100%" ml="64px" p="16px 10px" flexDir="column">
-      <Flex flexDirection="column" width="100%">
+    <>
+      <Flex
+        width="100%"
+        maxW="1280px"
+        flexDirection="column"
+        alignSelf="flex-start"
+        mb="4px"
+        py="8px"
+      >
         <Flex
-          width={["100%", "90%", "80%"]}
+          width="100%"
+          pb="12px"
           alignSelf="center"
+          justifyContent="center"
           alignItems="flex-end"
         >
           <Input
@@ -236,16 +282,17 @@ const SearchImages: React.FC = React.memo(() => {
             mt="12px"
             size="sm"
             alignSelf="center"
+            boxShadow="0px 0px 5px -2px black"
             ref={inputRef}
             autoFocus={true}
-            placeholder="Find Images"
+            placeholder="Find images"
             value={userInput}
-            pr="4.5rem"
             type="text"
             onChange={event => setUserInput(event.target.value)}
           />
           <Button
             bgColor="transparent"
+            textShadow="0px 0px 5px black"
             _active={{ outline: "none" }}
             _focus={{ outlineWidth: "none" }}
             _focusVisible={{ boxShadow: "0px 0px 0px px #282c34" }}
@@ -256,39 +303,48 @@ const SearchImages: React.FC = React.memo(() => {
           </Button>
         </Flex>
         {imagesCards ? (
-          <Flex alignSelf="center">
+          <Flex alignSelf={["center", "flex-end"]} pr={[0, 0, "7%", "7%"]}>
             <Pagination
               current={currentPage}
               total={totalPages}
               paginationClickHandler={paginateOnClick}
+              perpageHandler={perpageHandler}
             />
           </Flex>
-        ) : null}
-      </Flex>
-      <Wrap spacing="30px" py="60px" justify="center">
-        {error ? (
-          <Flex>
-            <Heading as="h3">Something went wrong... :(</Heading>
-            <Text>error</Text>
-          </Flex>
-        ) : isLoading ? (
-          <Spinner
-            thickness="4px"
-            speed="0.65s"
-            emptyColor="gray.200"
-            color="blue.500"
-            size="xl"
-          />
-        ) : imagesCards ? (
-          imagesCards
-        ) : (
-          <Text>
+        ) : !error && !isLoading ? (
+          <Text alignSelf="flex-start" ml={[0, "3%", "4%"]}>
             No images found. Would you try to search for anything else?
           </Text>
-        )}
-      </Wrap>
+        ) : null}
+      </Flex>
+      {error ? (
+        <Flex alignSelf="center">
+          <Heading as="h3">Something went wrong... :(</Heading>
+          <Text>error</Text>
+        </Flex>
+      ) : isLoading ? (
+        <Spinner
+          mt="16px"
+          alignSelf="center"
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="blue.500"
+          size="xl"
+        />
+      ) : imagesCards ? (
+        <Wrap
+          spacing="30px"
+          py="60px"
+          justify="center"
+          overflowX="hidden"
+          overflowY="auto"
+        >
+          {imagesCards}
+        </Wrap>
+      ) : null}
       <LoginModal onClose={onClose} isOpen={isOpen} />
-    </Flex>
+    </>
   );
 });
 

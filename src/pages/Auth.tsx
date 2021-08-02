@@ -9,7 +9,7 @@ type AuthProp = {
 
 const Auth: React.FC<AuthProp> = ({ action, redirect }) => {
   return (
-    <Flex w="100%" pl="64px">
+    <Flex w="100%">
       <Flex
         w={["100%", "85%", "60%", "45%"]}
         height="fit-content"
@@ -39,7 +39,7 @@ const Auth: React.FC<AuthProp> = ({ action, redirect }) => {
             m="auto"
             textTransform="capitalize"
           >
-            Join to FindImager
+            Join to ImageFinder
           </Heading>
         </Flex>
         <Flex px={["32px", "20%"]} w="100%" flexDirection="column">

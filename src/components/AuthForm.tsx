@@ -1,7 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import { AuthContext } from "../context/authContext";
-import LoginWithButton from "./UI/LoginWithButton";
 import {
   Box,
   Button,
@@ -13,7 +11,10 @@ import {
   Input,
   Stack,
   Text,
+  useToast,
 } from "@chakra-ui/react";
+import { AppUserContext } from "../context/userContext";
+import LoginWithButton from "./UI/LoginWithButton";
 
 type IAuthFormProps = {
   action: "login" | "register";
@@ -30,7 +31,7 @@ const AuthForm: React.FC<IAuthFormProps> = ({
   redirect,
   onCloseModal,
 }) => {
-  const { isAuth, authError, auth } = useContext(AuthContext);
+  const { isAuth, authError, authenticate } = useContext(AppUserContext).auth;
   const [formState, setFormState] = useState({
     name: "",
     email: "",
@@ -40,11 +41,22 @@ const AuthForm: React.FC<IAuthFormProps> = ({
   });
   const [authWay, setAuthWay] = useState(action || "login");
   const { push } = useHistory();
+  const toast = useToast();
 
   useEffect(() => {
-    if (isAuth && type === "modal" && onCloseModal) onCloseModal();
-    if (isAuth) push(redirect ? redirect : "/");
-  }, [isAuth, type, redirect, push, onCloseModal,]);
+    if (isAuth) {
+      if (type === "modal" && onCloseModal) {
+        onCloseModal();
+      } else push(redirect ? redirect : "/");
+      toast({
+        status: "info",
+        variant: "left-accent",
+        position: "top",
+        title: `Authorization success.`,
+        isClosable: true,
+      });
+    }
+  }, [isAuth, type, redirect, toast, push, onCloseModal]);
 
   useEffect(() => {
     if (authError) {
@@ -65,7 +77,7 @@ const AuthForm: React.FC<IAuthFormProps> = ({
         password: formState.password,
         returnSecureToken: true,
       };
-      auth(data, authWay);
+      authenticate(data, authWay);
       setFormState(prev => ({ ...prev, isLoading: true, error: null }));
     }
   };
