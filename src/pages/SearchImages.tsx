@@ -24,7 +24,7 @@ import ImageItem from "../components/Image/ImageItem";
 import LoginModal from "../components/Layout/LoginModalContainer";
 
 const SearchImages: React.FC = React.memo(() => {
-  const { auth, lastSearch } = useContext(AppUserContext)
+  const { auth, lastSearch } = useContext(AppUserContext);
   const { isAuth } = auth;
   const { setLastSearch } = lastSearch;
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -58,14 +58,16 @@ const SearchImages: React.FC = React.memo(() => {
     });
   }, []);
 
-  const fethcData = useCallback(async () => {
+  const fethcData = useCallback(async (isQueryChanged=false) => {
+    let page = currentPage;
+    if (isQueryChanged) page = 1;
     setSearchState(prev => ({
       ...prev,
       isLoading: true,
       error: null,
     }));
     let data = await fetch(
-      `https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=189f9704c734c2efe2932a78628553c7&text=${userInput}&per_page=${perPage}&page=${currentPage}&format=json&nojsoncallback=1`,
+      `https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=189f9704c734c2efe2932a78628553c7&text=${userInput}&per_page=${perPage}&page=${page}&format=json&nojsoncallback=1`,
       { method: "GET" }
     )
       .then(response => response.json())
@@ -140,9 +142,13 @@ const SearchImages: React.FC = React.memo(() => {
     (srcArr: ImageItem[]) => {
       const images = srcArr.map(img => {
         let isInBookmarks = false;
+        let tags = null as null | string[];
         if (bookmarks && bookmarks.length) {
           const target = bookmarks.find((b: IBookmark) => b.id === img.id);
-          if (target) isInBookmarks = target.isInBookmarks;
+          if (target) {
+            isInBookmarks = target.isInBookmarks;
+            tags = target.tags;
+          }
         }
         let colScheme = "blue";
         let caption = "Bookmark it";
@@ -159,7 +165,7 @@ const SearchImages: React.FC = React.memo(() => {
           title: img.title,
           src,
           isInBookmarks: isInBookmarks,
-          tags: img.tags,
+          tags: tags || img.tags,
         } as IBookmark;
         return (
           <ImageItem
@@ -199,6 +205,7 @@ const SearchImages: React.FC = React.memo(() => {
     // case: when user make paginate step or change perpage prop
     else if (
       userInput.trim().length > 0 &&
+      userInput === lastSearch.query &&
       (currentPage !== lastSearch.page || perPage !== lastSearch.perPage)
     ) {
       fethcData();
@@ -207,7 +214,7 @@ const SearchImages: React.FC = React.memo(() => {
     else if (userInput.trim().length > 0 && userInput !== lastSearch.query) {
       timer = setTimeout(() => {
         if (userInput.trim().length > 0) {
-          fethcData();
+          fethcData(true);
         }
       }, 1200);
     }
