@@ -1,46 +1,39 @@
-# Getting Started with Create React App
+# Image Finder
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+*This project is implemented according to tasks from dev test task document.* 
 
-## Available Scripts
+Deployed on vercel.app 
 
-In the project directory, you can run:
+demo: [find-image-am.vercel.app](https://find-image-am.vercel.app/)
 
-### `yarn start`
+src: [andrew-mak github](https://github.com/andrew-mak/find-image)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## main tech stack:
+* bootstrapped with Create React App
+* React
+* React Router
+* TypeScript
+* Chakra UI
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### extra packages:
+* react-icons
+* react-tag-input
+* react-idle-timer
+* auth0/auth0-react
 
-### `yarn test`
+### used APIs:
+* [Flickr:](https://www.flickr.com/services/api/)
+  - search images by text in title or tags;
+* [Firebase:](https://console.firebase.google.com/)
+  - user's authentication
+* [Evernote](https://dev.evernote.com/doc/start/javascript.php) (*not finished*)
+* [Pocket](https://getpocket.com/developer/docs/v3/add) (not finished, *problem with preflight request before authorize and it response with no cors header, that browsers strongly required*)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `yarn build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Covered functionality:
+1. simple email/password athentication with Firbase
+2. simple images search by text in title/tags (search with Flickr)
+3. simple paggination
+4. user's bookmarks: currently items stored in localStorage
+5. user's tags for any item in bookmarks (*create, delete*)
+6. auto timeout user's session (separate for every tab) with preceding alert message
+7. UI elements: toasts, tooltips, spinner
