@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex, Heading, useToast } from "@chakra-ui/react";
+import { Flex, Heading, Text, useToast } from "@chakra-ui/react";
 import { useBookmarks } from "../store/bookmarks";
 import ImageItem from "../components/Image/ImageItem";
 
@@ -37,7 +37,7 @@ const Bookmarks: React.FC = () => {
         Bookmarks
       </Heading>
       <Flex flexWrap="wrap" justifyContent="center" p="60px 4px">
-        {bokmarkedImages ? bokmarkedImages : <p>Nothing here yet :(</p>}
+        {bokmarkedImages ? bokmarkedImages : <Text>No images added yet.</Text>}
       </Flex>
     </Flex>
   );
