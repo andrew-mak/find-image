@@ -1,6 +1,6 @@
 import React from "react";
-import AuthForm from "../components/AuthForm";
 import { Flex, Heading } from "@chakra-ui/react";
+import AuthForm from "../components/AuthForm";
 
 type AuthProp = {
   action: "login" | "register";
@@ -39,7 +39,7 @@ const Auth: React.FC<AuthProp> = ({ action, redirect }) => {
             m="auto"
             textTransform="capitalize"
           >
-            Join to FindImager
+            Join to ImageFinder
           </Heading>
         </Flex>
         <Flex px={["32px", "20%"]} w="100%" flexDirection="column">

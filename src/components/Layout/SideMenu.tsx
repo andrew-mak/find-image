@@ -13,14 +13,14 @@ import {
   VStack,
 } from "@chakra-ui/react";
 
-interface sideDrawerProps {
+interface sideMenuProps {
   username: string | null;
   isOpen: boolean;
   onClose: () => void;
   logoutHandler: () => void;
 }
 
-const SideDrawer: React.FC<sideDrawerProps> = ({
+const SideMenu: React.FC<sideMenuProps> = ({
   username,
   isOpen,
   onClose,
@@ -91,4 +91,4 @@ const SideDrawer: React.FC<sideDrawerProps> = ({
   );
 };
 
-export default SideDrawer;
+export default SideMenu;

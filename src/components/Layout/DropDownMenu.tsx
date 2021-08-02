@@ -1,7 +1,7 @@
 import React from "react";
+import { Link as ReactLink } from "react-router-dom";
 import { Menu, MenuButton, MenuItem, MenuList, Link } from "@chakra-ui/react";
 import { FaChevronDown } from "react-icons/fa";
-import { Link as ReactLink } from "react-router-dom";
 
 interface DropDownMenuProps {
   userName: string | null;
